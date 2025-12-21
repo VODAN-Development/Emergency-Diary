@@ -1,0 +1,66 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix hds: <http://example.org/hds#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+###############################
+# SHACL Shapes for Validation
+###############################
+
+# Record Shape
+hds:RecordShape a sh:NodeShape ;
+    sh:targetClass hds:Record ;
+    sh:property [
+        sh:path hds:id ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Record must have an ID." ;
+    ] ;
+    sh:property [
+        sh:path hds:updatedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Record must have an updated timestamp." ;
+    ] .
+
+# Victim Shape
+hds:VictimShape a sh:NodeShape ;
+    sh:targetClass hds:Victim ;
+    sh:property [
+        sh:path hds:victimId ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Victim must have an ID." ;
+    ] ;
+    sh:property [
+        sh:path hds:number ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ; # stored as string in code
+        sh:message "Number of victims is required." ;
+    ] .
+
+# Location Shape
+hds:LocationShape a sh:NodeShape ;
+    sh:targetClass hds:Location ;
+    sh:property [
+        sh:path hds:country ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Country is required." ;
+    ] ;
+    sh:property [
+        sh:path hds:locationType ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Location type is required." ;
+    ] .
+
+# Situation Shape
+hds:SituationShape a sh:NodeShape ;
+    sh:targetClass hds:Situation ;
+    sh:property [
+        sh:path hds:captivityStatus ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Captivity status is required." ;
+    ] .

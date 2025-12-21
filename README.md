@@ -1,46 +1,166 @@
-# Template
+# Emergency Diary: My Secure Data Place
 
-## Overview
+Emergency Diary is a decentralized web application designed to help people in emergency situations securely store, manage, and selectively share sensitive personal data with trusted humanitarian organisations. The application is built on the **Solid ecosystem** and **Linked Data technologies**, ensuring that individuals remain in control of their data at all times.
 
-Brief overview of the project.
+Instead of storing data in centralized databases owned by institutions, Emergency Diary stores all information directly in the user’s **Solid Pod** and uses explicit, consent-based access control to enable ethical data sharing.
 
-### Main Objective
+---
 
-Further clarify the aims of this project.
+## What Is This Application About?
 
-## Common Data Model
+In humanitarian and emergency contexts, individuals such as refugees or trafficking victims are often required to repeatedly share the same sensitive information with multiple organisations. This data is usually collected through fragmented systems such as paper forms, spreadsheets, or siloed databases, leading to:
 
-fill out
+- Loss of data ownership
+- Privacy and security risks
+- Inconsistent or duplicated information
+- Limited interoperability between organisations
 
-## ETL Integration
+Emergency Diary explores an alternative approach where:
 
-fill out
+- Individuals **own and store** their emergency data
+- Access is **explicitly granted and revoked** by the data owner
+- Data is structured using **RDF and Linked Data** for interoperability
+- NGOs can **query distributed data** without centralizing it
 
-## Installation and setup instructions
+The project is implemented as a **pure client-side Single Page Application (SPA)** with no backend server.
 
-How would someone use this project? How do they install it.
+---
 
-### Prerequisites and dependencies
+## Key Concepts
 
-Any external applications or packages that need to be installed?
+- **Solid Pod**: A personal online data store owned by the user
+- **WebID**: A decentralized identifier used for authentication and access control
+- **RDF / Linked Data**: Semantic data model used for interoperability
+- **Consent-based access**: NGOs can only access data after explicit approval
 
-## Usage guide
+---
 
-How is this software used?
+## Technology Stack
 
-## FAQ
+### Frontend
+- React
+- TypeScript
+- Vite
 
-FAQ / Link to the Wiki
+### Solid & Linked Data
+- `@inrupt/solid-client`
+- `solid-client-authn-browser`
+- `rdflib`
+- RDF / Turtle serialization
 
+### Validation & Querying
+- SHACL validation (`rdf-validate-shacl`)
+- SPARQL querying using Comunica
 
-## Example
+### Visualization
+- Chart.js
 
-Example of how this is used, either online or smwhere else
+---
 
-## Contributing & issue reporting
+## Architecture Overview
 
-!UPDATE THE LINKS BELOW TO FIT WITH THIS REPOSITORY.!
+- The application runs entirely in the browser
+- There is **no backend server**
+- All data is stored in user-owned Solid Pods
+- Authentication is handled via Solid OpenID Connect
+- Access control is enforced by Solid Pod ACLs
 
-For reuse see the [license](https://github.com/VODAN-Development/FAIR-Data-Point/blob/main/LICENSE).
-For contributing to this project see the [contributor file](https://github.com/VODAN-Development/FAIR-Data-Point/blob/main/CONTRIBUTING.md).
-For issue reporting use the [issue board](https://github.com/VODAN-Development/FAIR-Data-Point/issues).
+---
+
+## Requirements
+
+Before running the application, make sure you have:
+
+- **Node.js** (version 22 recommended)
+- **npm** (comes with Node.js)
+- A **Solid Pod account**
+- A **Solid WebID**
+
+You can create a Solid Pod using providers such as:
+- https://solidcommunity.net
+
+---
+
+## How to Set Up the Application Locally
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/karan14102000/solid-emergency.git
+cd solid-emergency
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the Development Server
+
+```bash
+npm run dev
+```
+
+### The application will be available at:
+
+```bash
+http://localhost:5173/
+```
+
+## Authentication and Login
+- Open the application in your browser.
+- Click "My Secure Data Place" to login as refugee/emergency data owner or "Support Organisation" if you are an NGO
+  ### Authenticate using Solid account:
+  - ### Login (if you already have an account):
+    - Enter Email ID and password -> Click Login
+    - Click Authorize
+  - ### Create a new account
+    - Click Sign Up -> Enter your Email ID and password
+    - Click Register
+    - Under Pods section -> if already a Pod URL is configured -> Scroll down and click Continue Authentication -> Authorize
+        - ### if not:
+            - Click Create Pod -> then provide name -> choose: "Use WebID in the Pod and register it to your account" option
+            - Click Create Pod -> it shows your newly created Pod URL -> Click Back
+            - Scroll down and click Continue Authentication -> Authorize 
+Once logged in, the application establishes a secure session and gains permission to interact with your Solid Pod.
+
+## User Roles and Usage
+### Refugee / Emergency Data Owner (My Secure Data Place)
+As a refugee or emergency user, you can:
+ - **Create an Emergency Record**
+    - Fill out structured forms describing your situation, location, and details
+    - Upload supporting files if needed
+- **Store Data Securely**
+    - All data is validated and stored as RDF in your Solid Pod
+    - No data is stored on application servers
+- **Manage Access**
+    - Grant read access to trusted NGOs using their WebIDs
+    - Revoke access at any time
+    - Access actions are logged privately in your Pod
+
+## NGO / Humanitarian Organisation (Support Organisation)
+As an NGO user, you can:
+- **Authenticate Using a WebID**
+- **Discover Shared Records**
+    - View emergency data only after access is granted by users
+- **Query Distributed Data**
+    - Run SPARQL queries across multiple Pods using Comunica    
+    - Analyze shared data without centralizing it
+- **Visualize Results**
+    - View results in lists and basic charts
+
+## End-to-End Data Flow
+- A user logs in using their Solid WebID
+- Emergency data is entered through the UI
+- Data is transformed into RDF using a custom vocabulary
+- SHACL validation ensures data completeness
+- Validated data is stored in the user’s Solid Pod
+- The user grants access to selected NGOs
+- NGOs query shared data across Pods using SPARQL
+- Results are displayed and analyzed without copying data centrally
+
+## License
+```bash
+This project is developed as part of a FieldLab and is intended for research and educational purposes.
+```
