@@ -26,7 +26,7 @@ The project is implemented as a **pure client-side Single Page Application (SPA)
 
 ---
 
-## Key Concepts
+## Prerequisites
 
 - **Solid Pod**: A personal online data store owned by the user
 - **WebID**: A decentralized identifier used for authentication and access control
