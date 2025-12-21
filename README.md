@@ -159,8 +159,3 @@ As an NGO user, you can:
 - The user grants access to selected NGOs
 - NGOs query shared data across Pods using SPARQL
 - Results are displayed and analyzed without copying data centrally
-
-## License
-```bash
-This project is developed as part of a FieldLab and is intended for research and educational purposes.
-```
