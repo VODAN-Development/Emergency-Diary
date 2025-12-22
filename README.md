@@ -65,7 +65,7 @@ The application is currently hosted at https://emergency-diary.netlify.app
 - All data is stored in user-owned Solid Pods
 - Authentication is handled via Solid OpenID Connect
 - Access control is enforced by Solid Pod ACLs
-![System Architecture](images/diagram-export-12-22-2025-12_17_59-AM)
+![System Architecture](images/diagram-export-12-22-2025-12_17_59-AM.png)
 ---
 
 ## Requirements
