@@ -159,3 +159,15 @@ As an NGO user, you can:
 - The user grants access to selected NGOs
 - NGOs query shared data across Pods using SPARQL
 - Results are displayed and analyzed without copying data centrally
+---
+## Technical Summary
+- **Purpose**: Client-side React + TypeScript SPA for securely collecting, storing, sharing, and querying emergency/refugee incident data using Solid Pods and Linked Data.
+- **Stack**: React, Vite, TypeScript, rdflib, @inrupt/solid-client + solid-client-authn-browser, Comunica (@comunica/query-sparql), rdf-validate-shacl, Chart.js.
+- Auth: Solid OIDC via auth.ts (defaults to https://solidcommunity.net), session-bound solidFetch used for authenticated requests.
+- Storage & Files: User data is saved into their Pod under public/emergency.ttl; NGO list at public/ngoList.ttl; access logs at private/ngo-access-log.ttl.
+- Data model / ontology: Uses a local CDM vocabulary in cdm_sord.ttl (classes: Record, Victim, Location, Situation; many hds: properties) and SHACL shapes in shapes.ttl for input validation.
+- Validation & Reasoning: SHACL validation via rdf-validate-shacl (solidDatanew.ts) and a simple forward-chaining reasoner (owl:equivalentProperty / owl:equivalentClass) in reasoner.ts that augments RDF before reads/writes.
+- Data I/O: RDF serialization with rdflib and PUT/GET to Pod URLs via the authenticated fetch. CRUD implemented in solidDatanew.ts and access control via accessControl.ts (uses universalAccess.setAgentAccess / setPublicAccess).
+- Search / Analytics: SPARQL queries run with Comunica in comunicaQuery.ts and customizable queries in customComunicaQuery.ts. Queries operate across remote Pod files (sources = HTTP URLs) with the same authenticated fetch.
+- UI: App.tsx is the main UI: bilingual (English / Tigrinya), form-driven data entry (victim, location, situation), file upload, NGO selection, access granting/revocation, basic charts (Chart.js) and lists of remote records for NGO role.
+- Access Flow: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (public/refugeesGranted.ttl).
