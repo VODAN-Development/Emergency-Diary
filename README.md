@@ -23,6 +23,7 @@ Emergency Diary explores an alternative approach where:
 - NGOs can **query distributed data** without centralizing it
 
 The project is implemented as a **pure client-side Single Page Application (SPA)** with no backend server.
+The application is currently hosted at https://emergency-diary.netlify.app
 
 ---
 
