@@ -86,7 +86,7 @@ You can create a Solid Pod using providers such as:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/karan14102000/solid-emergency.git
+git clone https://github.com/VODAN-Development/2025_fieldlab3.git
 cd solid-emergency
 ```
 
