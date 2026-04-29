@@ -12,6 +12,7 @@ import { loadOntology, getOntologyStore } from "./cdmnew";
 import type { EmergencyData } from "./solidDatanew";
 import * as $rdf from "rdflib";
 
+
 import {
   getSolidDataset,
   getThing,
@@ -88,6 +89,8 @@ function buildCdmDocsFromStore(store: $rdf.IndexedFormula): CdmDocs {
   const RDFS_LABEL = $rdf.sym(RDFS_NS + "label");
   const RDFS_COMMENT = $rdf.sym(RDFS_NS + "comment");
 
+  
+
   function getDoc(localName: string): CdmTermDoc {
     const subject = $rdf.sym(CDM_NS + localName);
     const labelNode = store.any(subject, RDFS_LABEL, null);
@@ -126,9 +129,15 @@ function buildCdmDocsFromStore(store: $rdf.IndexedFormula): CdmDocs {
     situation: [
       "description",
       "accommodation",
-      "needs",
+      "accommodationNeeds",
       "needsDescription",
       "captivityStatus",
+
+      //=============================
+      "CaptivityDetail",
+      "trauma",        // NEW: Visible injuries
+      "healthStatus",   // NEW: Health condition
+      //=============================
       "helpReasons",
       "extraInfo",
       "contactPhoneSelf",
@@ -166,7 +175,7 @@ function SearchableDropdown({
   const filtered = options.filter((opt) =>
     opt.toLowerCase().includes(search.toLowerCase()),
   );
-
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -434,27 +443,23 @@ function getPodBaseFromWebId(webId: string): string {
   return `${url.origin}/`;
 }
 
-function requestGPS(): Promise<{ latitude: number; longitude: number }> {
+function requestGPS(): Promise<GeolocationCoordinates> {
   return new Promise((resolve, reject) => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          reject(error);
-        },
-      );
-    } else {
+    if (!navigator.geolocation) {
       reject(new Error("Geolocation not supported"));
     }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve(pos.coords),
+      (err) => reject(err)
+    );
   });
 }
 
 export default function App() {
+  const [emergencyData, setEmergencyData] = useState({
+    latitude: "",
+    longitude: ""
+  });
   const [language, setLanguage] = useState<"en" | "ti">(() => {
     if (typeof window !== "undefined") {
       const stored = window.localStorage.getItem("appLanguage");
@@ -462,7 +467,25 @@ export default function App() {
     }
     return "en";
   });
-
+const handleGetGPS = async () => {
+  try {
+    setStatus(dashboardTexts.gettingGps);
+    const coords = await requestGPS();
+    
+    setLatitude(coords.latitude.toString());
+    setLongitude(coords.longitude.toString());
+   
+setEmergencyData((prev) => ({
+  ...prev,
+  latitude: coords.latitude.toString(),
+  longitude: coords.longitude.toString()
+}));
+    setStatus(dashboardTexts.gpsObtained);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    setStatus(isTigrinya ? `GPS ጌጋ: ${msg}` : `GPS Error: ${msg}`);
+  }
+};
   const handleLanguageChange = (lang: "en" | "ti") => {
     setLanguage(lang);
     if (typeof window !== "undefined") {
@@ -628,6 +651,9 @@ export default function App() {
     captivityStatus: isTigrinya ? "ኩነታት ኣተዓጋግታ *" : "Captivity Status *",
     yes: isTigrinya ? "እወ" : "Yes",
     no: isTigrinya ? "አይኮነን" : "No",
+    //Done by zebrehe//
+    CaptivityDetail: isTigrinya ? "ዝርዝር ኣተዓጋግታ *" : "Captivity Detail *",
+    // Done By ZEBREHE
 
     extraInfoQuestion: isTigrinya
       ? "ንሕና ክንፈልጦ ይግባእ ትብሎ/ትብልዮ ሓበሬታ ኣለካ/ኪ?"
@@ -809,6 +835,25 @@ export default function App() {
       : "Please select at least one NGO",
 
     selectedLabel: isTigrinya ? "ዝተመረጸ: " : "Selected: ",
+
+//=============== ==============
+  trauma: isTigrinya ? "ጉድኣት አካል (Trauma)" : "Visible Injuries (Trauma)",
+    traumaCuts: isTigrinya ? "ቁርጥቆሽ / ቁርጥቆሽታት" : "Cuts / lacerations",
+    traumaBruises: isTigrinya ? "ጉድኣት ቆዳ" : "Bruises",
+    traumaBurns: isTigrinya ? "ቃጠሎ" : "Burns",
+    traumaFractures: isTigrinya ? "ስባር ዓጽሚ" : "Fractures",
+    traumaHeadInjury: isTigrinya ? "ጉድኣት ርእሲ" : "Head injury",
+    traumaGunshot: isTigrinya ? "ጥይት / ቁራጽ ብረት" : "Gunshot / shrapnel",
+    traumaSexualViolence: isTigrinya ? "ምልክታት ዓመጽ ብዛዕባ ዝምድና" : "Signs of sexual violence",
+    traumaDehydration: isTigrinya ? "ውሃ ማጽዋት / ምግቢ ማጽዋት" : "Dehydration / malnutrition",
+    traumaOther: isTigrinya ? "ካልእ ዝረአ ጉድኣት" : "Other visible injury",
+    //=============================
+
+  healthStatus: isTigrinya ? "ኩነታት ጥዕና" : "Health Condition",
+  enterHealthStatus: isTigrinya ? "ኩነታት ጥዕናኹም ግለጹ" : "Describe your health condition",
+  
+  
+       
   };
 
   const GENDER_VALUES = ["Female", "Male", "Other", "Prefer not to say"];
@@ -820,6 +865,7 @@ export default function App() {
     "Mixed",
     "Prefer not to say",
   ];
+
   const LOCATION_TYPE_VALUES = [
     "Refugee/IDP camp",
     "Human Trafficking/Smuggling camp",
@@ -843,6 +889,21 @@ export default function App() {
     "Spiritual support",
     "Administrative support",
   ];
+
+//=============================
+ const TRAUMA_VALUES = [
+  "Cuts / lacerations",
+  "Bruises",
+  "Burns",
+  "Fractures",
+  "Head injury",
+  "Gunshot / shrapnel",
+  "Signs of sexual violence",
+  "Dehydration / malnutrition",
+  "Other visible injury",
+];
+  //=============================
+
   const HELP_REASON_VALUES = [
     "I am abducted",
     "I am held against my will",
@@ -1071,11 +1132,18 @@ export default function App() {
 
   const [situationDescription, setSituationDescription] = useState("");
   const [accommodation, setAccommodation] = useState("");
-  const [accommodationNeeds, setAccommodationNeeds] = useState("");
+  const [accommodationNeeds, setAccommodationNeeds] = useState<string[]>([]);
   const [needsDescription, setNeedsDescription] = useState("");
   const [captivityStatus, setCaptivityStatus] = useState("");
   const [helpReasons, setHelpReasons] = useState<string[]>([]);
   const [extraInfo, setExtraInfo] = useState("");
+
+
+ //============================= NEW STATES - Only for Trauma, Health Status, and captivity detail
+    const [CaptivityDetail, setCaptivityDetail] = useState("");
+  const [trauma, setTrauma] = useState<string[]>([]);
+  const [healthStatus, setHealthStatus] = useState("");
+  //===============by ==============
 
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [evidenceUploadStatus, setEvidenceUploadStatus] = useState<
@@ -1107,6 +1175,13 @@ export default function App() {
   const [ngoViewMap, setNgoViewMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
+  // Use 'loggedIn' (the state variable defined on line 719), 
+  // NOT 'isLoggedIn' (the function imported on line 4).
+  if (loggedIn && role === "refugee") {
+    handleGetGPS();
+  }
+}, [loggedIn, role]);
+  useEffect(() => {
     (async () => {
       await Promise.all([initSession(), loadOntology()]);
       const ok = isLoggedIn();
@@ -1116,7 +1191,6 @@ export default function App() {
       setReady(true);
     })();
   }, []);
-
   useEffect(() => {
     if (!podBaseUrl) return;
 
@@ -1238,18 +1312,7 @@ export default function App() {
     setRawRdf("");
   }
 
-  const handleGetGPS = async () => {
-    try {
-      setStatus(dashboardTexts.gettingGps);
-      const coords = await requestGPS();
-      setLatitude(coords.latitude.toString());
-      setLongitude(coords.longitude.toString());
-      setStatus(dashboardTexts.gpsObtained);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      setStatus(`Error getting GPS: ${msg}`);
-    }
-  };
+  
 
   const handleEvidenceInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -1345,7 +1408,7 @@ export default function App() {
       locationType,
       situationDescription,
       accommodation,
-      accommodationNeeds,
+    accommodationNeeds: accommodationNeeds.join("; "),
       needsDescription,
       captivityStatus,
       helpReasons: helpReasons.join("; "),
@@ -1357,6 +1420,14 @@ export default function App() {
       contactRequest,
       gps,
       evidenceUrls: evidenceUrls.join("; "),
+
+    //=============================
+      // New fields only
+      trauma: trauma.join("; "),
+     
+      healthStatus,
+      CaptivityDetail
+    //=============================
     };
   }
 
@@ -1392,7 +1463,11 @@ export default function App() {
     setLocationType(data.locationType);
     setSituationDescription(data.situationDescription);
     setAccommodation(data.accommodation);
-    setAccommodationNeeds(data.accommodationNeeds);
+    setAccommodationNeeds(
+  data.accommodationNeeds
+    ? data.accommodationNeeds.split(";").map((s) => s.trim()).filter(Boolean)
+    : []
+);
     setNeedsDescription(data.needsDescription);
     setCaptivityStatus(data.captivityStatus);
     setHelpReasons(
@@ -1417,6 +1492,11 @@ export default function App() {
             .filter((s) => s.length > 0)
         : [],
     );
+  //===============by ============== New fields
+  setCaptivityDetail(data.CaptivityDetail);
+    setTrauma(data.trauma ? data.trauma.split(";").map((s) => s.trim()).filter(Boolean) : []);
+    setHealthStatus(data.healthStatus || "");
+  //=============================
   }
 
   async function handleSave() {
@@ -2793,14 +2873,15 @@ export default function App() {
                   />
                 </div>
 
-                {/* RIGHT COLUMN */}
+              {/* RIGHT COLUMN */}
                 <div>
                   <div style={{ marginTop: 16, marginBottom: 16 }}>
                     <h2>{dashboardTexts.whyNeedHelp}</h2>
                     <p style={{ fontSize: 14, marginBottom: 8 }}>
                       {dashboardTexts.youCanTick}
                     </p>
-                    {HELP_REASON_VALUES.map((reasonKey) => (
+                    {HELP_REASON_VALUES.map((reasonKey) => 
+                      (
                       <label
                         key={reasonKey}
                         style={{ display: "block", marginBottom: 4 }}
@@ -2856,20 +2937,100 @@ export default function App() {
                       }}
                     />
                   </div>
-                  {/*<SimpleDropdown
-                    label="Accommodation"
-                    value={accommodation}
-                    onChange={setAccommodation}
-                    options={["House", "Apartment", "Tent", "No accommodation"]}
-                  />*/}
-                  <SimpleDropdown
-                    label={dashboardTexts.yourNeeds}
-                    value={accommodationNeeds}
-                    onChange={setAccommodationNeeds}
-                    options={NEEDS_VALUES}
-                    getOptionLabel={getNeedsLabel}
-                    placeholder={dashboardTexts.selectPlaceholder}
-                  />
+                  
+
+<div style={{ marginTop: 16, marginBottom: 16 }}>
+  <h2>{dashboardTexts.needs}</h2>
+  <p style={{ fontSize: 14, marginBottom: 8 }}>
+    {dashboardTexts.youCanTick}
+  </p>
+
+  {NEEDS_VALUES.map((needKey) => (
+    <label
+      key={needKey}
+      style={{ display: "block", marginBottom: 4, cursor: "pointer" }}
+    >
+      <input
+        type="checkbox"
+        checked={accommodationNeeds?.includes(needKey)}
+        onChange={(e) => {
+          setAccommodationNeeds((prev: string[]) => {
+            if (e.target.checked) {
+              // add safely (avoid duplicates)
+              if (!prev.includes(needKey)) {
+                return [...prev, needKey];
+              }
+              return prev;
+            } else {
+              // remove safely
+              return prev.filter((item) => item !== needKey);
+            }
+          });
+        }}
+        style={{ marginRight: 8 }}
+      />
+
+      {getNeedsLabel(needKey)}
+    </label>
+  ))}
+</div>
+{/* ====================== HEALTH SECTION ====================== */}
+<h2>{dashboardTexts.health}</h2>
+
+{/* Trauma / Visible Injuries */}
+<div style={{ marginBottom: 16 }}>
+  <h2>{dashboardTexts.trauma}</h2>
+  <p style={{ fontSize: 14, marginBottom: 8 }}>
+    {dashboardTexts.youCanTick}
+  </p>
+  {TRAUMA_VALUES.map((item, index) => {
+    const key = ["traumaCuts", "traumaBruises", "traumaBurns", "traumaFractures",
+                 "traumaHeadInjury", "traumaGunshot", "traumaSexualViolence",
+                 "traumaDehydration", "traumaOther"][index];
+
+    return (
+      <label
+        key={item}
+        style={{ display: "block", marginBottom: 4 }}
+      >
+        <input
+          type="checkbox"
+          checked={trauma.includes(item)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setTrauma([...trauma, item]);
+            } else {
+              setTrauma(trauma.filter((t) => t !== item));
+            }
+          }}
+          style={{ marginRight: 8 }}
+        />
+        {isTigrinya ? dashboardTexts[key as keyof typeof dashboardTexts] : item}
+      </label>
+    );
+  })}
+</div>
+
+{/* Health Status - Free text */}
+<div style={{ marginBottom: 16 }}>
+  <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>
+    {dashboardTexts.healthStatus}
+  </label>
+  <textarea
+    value={healthStatus}
+    onChange={(e) => setHealthStatus(e.target.value)}
+    placeholder={dashboardTexts.enterHealthStatus}
+    style={{
+      width: "100%",
+      padding: 8,
+      border: "1px solid #ccc",
+      borderRadius: 4,
+      minHeight: 80,
+    }
+  /* ===================*/}
+  />
+</div>
+
 
                   <div style={{ marginBottom: 8 }}>
                     <label
@@ -2894,15 +3055,29 @@ export default function App() {
                       }}
                     />
                   </div>
-                  <SimpleDropdown
-                    label={dashboardTexts.captivityStatus}
-                    value={captivityStatus}
-                    onChange={setCaptivityStatus}
-                    options={CAPTIVITY_STATUS_VALUES}
-                    getOptionLabel={getCaptivityStatusLabel}
-                    hasError={validationErrors.has("captivityStatus")}
-                    placeholder={dashboardTexts.selectPlaceholder}
-                  />
+     <SimpleDropdown
+  label={dashboardTexts.captivityStatus}
+  value={captivityStatus}
+  onChange={setCaptivityStatus}
+  options={CAPTIVITY_STATUS_VALUES}
+  getOptionLabel={getCaptivityStatusLabel}
+  hasError={validationErrors.has("captivityStatus")}
+  placeholder={dashboardTexts.selectPlaceholder}
+/>
+
+{/* Added by zebrehe */}
+{captivityStatus == "Yes" && (
+  <div style={{ marginTop: "10px" }}>
+     label={dashboardTexts.CaptivityDetail}
+    <textarea
+      value={CaptivityDetail}
+      onChange={(e) => setCaptivityDetail(e.target.value)}
+      rows={4}
+      style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+    />
+  </div>
+)}
+ {/* Added by zebrehe */}
 
                   {/* Extra information for supporters */}
                   <div style={{ marginBottom: 16 }}>
