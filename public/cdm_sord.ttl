@@ -210,9 +210,9 @@ hds:accommodation a owl:DatatypeProperty ;
     rdfs:domain hds:Situation ;
     rdfs:range [ owl:oneOf ("Tent" "Appartment" "House") ] .
 
-hds:needs a owl:DatatypeProperty ;
+hds:accommodationNeeds a owl:DatatypeProperty ;
     owl:equivalentProperty schema:requires ;
-    rdfs:domain hds:Camp ;
+    rdfs:domain hds:Situation  ;
     rdfs:range [ owl:oneOf (
         "Health" "Education" "Shelter" "Protection" "WASH"
         "Food security" "Transportation" "Communication"
@@ -224,9 +224,28 @@ hds:needsDescription a owl:DatatypeProperty ;
     rdfs:comment "Description of the victim's needs." ;
     owl:equivalentProperty ex:needsDescription .
 
+hds:hasTrauma a owl:ObjectProperty ;
+    rdfs:label "Has Trauma" ;
+    rdfs:comment "Links a situation or record to trauma conditions." ;
+    rdfs:domain hds:Situation ;
+    rdfs:range hds:Trauma .
+hds:healthStatus a owl:DatatypeProperty ;
+    rdfs:label "Health Condition" ;
+    rdfs:comment "Overall health status of the victim or situation." ;
+    rdfs:domain [
+        owl:unionOf (hds:Victim hds:Situation)
+    ] ;
+    rdfs:range xsd:string ;
+
 hds:captivityStatus a owl:DatatypeProperty ;
     rdfs:domain hds:Victim ;
     rdfs:range [ owl:oneOf ("in captivity" "not in captivity") ] .
+
+hds:CaptivityDetail a owl:DatatypeProperty ;
+    rdfs:label "Captivity Detail" ;
+    rdfs:comment "Detailed description when victim is in captivity." ;
+    rdfs:domain hds:Situation ;
+    rdfs:range xsd:string .
 
 hds:helpReasons a owl:DatatypeProperty ;
     rdfs:domain hds:Victim ;
