@@ -2940,7 +2940,7 @@ setEmergencyData((prev) => ({
                   
 
 <div style={{ marginTop: 16, marginBottom: 16 }}>
-  <h2>{dashboardTexts.needs}</h2>
+  <h2>{dashboardTexts.yourNeeds}</h2>
   <p style={{ fontSize: 14, marginBottom: 8 }}>
     {dashboardTexts.youCanTick}
   </p>
@@ -3058,7 +3058,14 @@ setEmergencyData((prev) => ({
      <SimpleDropdown
   label={dashboardTexts.captivityStatus}
   value={captivityStatus}
-  onChange={setCaptivityStatus}
+  onChange={(value) => {
+    setCaptivityStatus(value);
+
+    // clear previous input when not "Yes"
+    if (value !== "Yes") {
+      setCaptivityDetail("");
+    }
+  }}
   options={CAPTIVITY_STATUS_VALUES}
   getOptionLabel={getCaptivityStatusLabel}
   hasError={validationErrors.has("captivityStatus")}
@@ -3066,9 +3073,9 @@ setEmergencyData((prev) => ({
 />
 
 {/* Added by zebrehe */}
-{captivityStatus == "Yes" && (
+{captivityStatus === "Yes" && (
   <div style={{ marginTop: "10px" }}>
-     label={dashboardTexts.CaptivityDetail}
+    {dashboardTexts.CaptivityDetail}
     <textarea
       value={CaptivityDetail}
       onChange={(e) => setCaptivityDetail(e.target.value)}
