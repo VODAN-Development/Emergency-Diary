@@ -46,6 +46,11 @@ export type EmergencyData = {
   contactRequest: string;
   gps: string;
   evidenceUrls: string;
+//===============Editted==============
+  trauma: string;      
+  CaptivityDetail: string;             // New: Visible injuries (multiple selection)
+  healthStatus: string;             // New: Health condition (free text)
+  //===============Newly added Features==============
 };
 
 function addTripleIf(
@@ -56,6 +61,22 @@ function addTripleIf(
 ): void {
   if (value) {
     store.add(subject, predicate, $rdf.lit(value));
+  }
+}
+
+// Helper for multi-select fields (needs & trauma)
+function addMultiValueIf(
+  store: $rdf.IndexedFormula,
+  subject: $rdf.NamedNode,
+  predicate: $rdf.NamedNode,
+  value: string | string[] | undefined
+): void {
+  const val = typeof value === "string" 
+    ? value 
+    : Array.isArray(value) ? value.join("; ") : "";
+  
+  if (val) {
+    store.add(subject, predicate, $rdf.lit(val));
   }
 }
 
@@ -101,8 +122,6 @@ async function validateData(store: $rdf.IndexedFormula): Promise<void> {
       throw error;
     }
     console.error("Validation error:", error);
-    // Decision: Do we block save if validation SYSTEM fails (not data fail)?
-    // Let's not block for system errors, only data errors.
   }
 }
 
@@ -138,12 +157,7 @@ export async function saveEmergencyData(
   addTripleIf(store, victimNode, CDM.nationality, data.nationality);
   addTripleIf(store, victimNode, CDM.gender, data.victimGender);
   addTripleIf(store, victimNode, CDM.age, data.victimAge);
-  addTripleIf(
-    store,
-    victimNode,
-    CDM.groupNationalities,
-    data.groupNationalities,
-  );
+  addTripleIf(store, victimNode, CDM.groupNationalities, data.groupNationalities);
   addTripleIf(store, victimNode, CDM.groupGenders, data.groupGenders);
   addTripleIf(store, victimNode, CDM.groupAges, data.groupAges);
 
@@ -163,43 +177,28 @@ export async function saveEmergencyData(
   store.add(situationNode, RDF_TYPE, CDM.Situation);
   addTripleIf(store, situationNode, CDM.description, data.situationDescription);
   addTripleIf(store, situationNode, CDM.accommodation, data.accommodation);
-  addTripleIf(store, situationNode, CDM.needs, data.accommodationNeeds);
+  addTripleIf(store, situationNode, CDM.accommodationNeeds, data.accommodationNeeds);
 
-  addTripleIf(
-    store,
-    situationNode,
-    CDM.needsDescription,
-    data.needsDescription,
-  );
+
+  addTripleIf(store, situationNode, CDM.needsDescription, data.needsDescription);
   addTripleIf(store, situationNode, CDM.captivityStatus, data.captivityStatus);
   addTripleIf(store, situationNode, CDM.helpReasons, data.helpReasons);
 
   addTripleIf(store, situationNode, CDM.extraInfo, data.extraInfo);
-  addTripleIf(
-    store,
-    situationNode,
-    CDM.contactPhoneSelf,
-    data.contactPhoneSelf,
-  );
-  addTripleIf(
-    store,
-    situationNode,
-    CDM.contactPhoneTrusted,
-    data.contactPhoneTrusted,
-  );
-  addTripleIf(
-    store,
-    situationNode,
-    CDM.contactMessenger,
-    data.contactMessenger,
-  );
-  addTripleIf(
-    store,
-    situationNode,
-    CDM.contactOtherHandles,
-    data.contactOtherHandles,
-  );
+  addTripleIf(store, situationNode, CDM.contactPhoneSelf, data.contactPhoneSelf);
+  addTripleIf(store, situationNode, CDM.contactPhoneTrusted, data.contactPhoneTrusted);
+  addTripleIf(store, situationNode, CDM.contactMessenger, data.contactMessenger);
+  addTripleIf(store, situationNode, CDM.contactOtherHandles, data.contactOtherHandles);
   addTripleIf(store, situationNode, CDM.contactRequest, data.contactRequest);
+
+
+  //===============New Fields==============
+  // New fields: Trauma and Health Status
+  addMultiValueIf(store, situationNode, CDM.trauma, data.trauma);
+  addTripleIf(store, situationNode, CDM.healthStatus, data.healthStatus);
+  addTripleIf(store,situationNode, CDM.CaptivityDetail,data.CaptivityDetail)
+//=============================
+
 
   addTripleIf(store, situationNode, EVIDENCE_URLS_PRED, data.evidenceUrls);
 
@@ -217,9 +216,7 @@ export async function saveEmergencyData(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to save: ${response.status} ${response.statusText}`,
-    );
+    throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
   }
 
   return fileUrl;
@@ -293,23 +290,21 @@ export async function loadEmergencyData(
 
   const situationDescription = getLiteral(situationNode, CDM.description);
   const accommodation = getLiteral(situationNode, CDM.accommodation);
-  const accommodationNeeds = getLiteral(situationNode, CDM.needs);
+ const accommodationNeeds = getLiteral(situationNode, CDM.accommodationNeeds);
   const needsDescription = getLiteral(situationNode, CDM.needsDescription);
   const captivityStatus = getLiteral(situationNode, CDM.captivityStatus);
   const helpReasons = getLiteral(situationNode, CDM.helpReasons);
 
   const extraInfo = getLiteral(situationNode, CDM.extraInfo);
   const contactPhoneSelf = getLiteral(situationNode, CDM.contactPhoneSelf);
-  const contactPhoneTrusted = getLiteral(
-    situationNode,
-    CDM.contactPhoneTrusted,
-  );
+  const contactPhoneTrusted = getLiteral(situationNode, CDM.contactPhoneTrusted);
   const contactMessenger = getLiteral(situationNode, CDM.contactMessenger);
-  const contactOtherHandles = getLiteral(
-    situationNode,
-    CDM.contactOtherHandles,
-  );
+  const contactOtherHandles = getLiteral(situationNode, CDM.contactOtherHandles);
   const contactRequest = getLiteral(situationNode, CDM.contactRequest);
+  const healthStatus=getLiteral(situationNode, CDM.healthStatus);
+   const trauma=getLiteral(situationNode, CDM.trauma);
+     const CaptivityDetail = getLiteral(situationNode, CDM.CaptivityDetail);
+   //const Needs=getLiteral(situationNode,CDM.needs);
 
   const evidenceUrls = getLiteral(situationNode, EVIDENCE_URLS_PRED);
 
@@ -341,6 +336,7 @@ export async function loadEmergencyData(
     accommodationNeeds,
     needsDescription,
     captivityStatus,
+    CaptivityDetail,
     helpReasons,
     extraInfo,
     contactPhoneSelf,
@@ -350,6 +346,11 @@ export async function loadEmergencyData(
     contactRequest,
     gps,
     evidenceUrls,
+     
+
+    // Updated fields returned
+    trauma: getLiteral(situationNode, CDM.trauma),
+    healthStatus: getLiteral(situationNode, CDM.healthStatus),
   };
 }
 
@@ -381,9 +382,7 @@ export async function saveNgoList(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to save NGO list: ${response.status} ${response.statusText}`,
-    );
+    throw new Error(`Failed to save NGO list: ${response.status} ${response.statusText}`);
   }
 
   return fileUrl;
