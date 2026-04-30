@@ -55,6 +55,10 @@ const getVarName = (field: string) => {
       return "?evidenceUrls";
     default:
       return "?unknown";
+      //**Newly added
+       case "Trauma": return "?trauma";
+    case "Health Status": return "?healthStatus";
+    case "Captivity Detail": return "?CaptivityDetail";
   }
 };
 
@@ -197,12 +201,17 @@ export async function executeCustomQuery(
   const genderProp = expandProperty("hds:gender", mapping);
   const helpReasonsProp = expandProperty("hds:helpReasons", mapping);
   const evidenceUrlsProp = "<http://example.org/ns#evidenceUrls>";
+  //newly added
+  const traumaProp = expandProperty("hds:trauma", mapping);
+const healthStatusProp = expandProperty("hds:healthStatus", mapping);
+const captivityDetailProp = expandProperty("hds:CaptivityDetail", mapping);
 
   const query = `
   ${prefixes}
   SELECT ?country ?town ?nationality ?locationType ?accommodation ?accommodationNeeds
          ?age ?numberOfVictims ?recordDate ?victimCategory ?state ?village
          ?locationName ?captivityStatus ?gender ?helpReasons ?evidenceUrls
+           ?trauma ?healthStatus ?CaptivityDetail
   WHERE {
 
 
@@ -258,7 +267,18 @@ export async function executeCustomQuery(
       ?sit a hds:Situation .
       ?sit ${captivityStatusProp} ?captivityStatus .
     }
-
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${traumaProp} ?trauma .
+}
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${healthStatusProp} ?healthStatus .
+}
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${captivityDetailProp} ?CaptivityDetail .
+}
 
     ${filterBlock}
   }
@@ -303,6 +323,10 @@ export async function executeCustomQuery(
           gender: binding.get("gender")?.value,
           helpReasons: binding.get("helpReasons")?.value,
           evidenceUrls: binding.get("evidenceUrls")?.value,
+           // ✅ NEW
+     trauma: binding.get("trauma")?.value,
+     healthStatus: binding.get("healthStatus")?.value,
+     CaptivityDetail: binding.get("CaptivityDetail")?.value,
         });
       }
     } catch (err) {
