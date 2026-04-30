@@ -182,17 +182,19 @@ export async function queryRefugeeData(
           ?sit ${captivityStatusProp} ?captivityStatus .
         }
            OPTIONAL {
-          ?vic a hds:Situation .
-          ?vic ${traumaProp} ?trauma .
-        }
-        OPTIONAL {
-          ?vic a hds:Situation .
-          ?vic ${healthStatusProp} ?healthStatus .
-        }
-        OPTIONAL {
-          ?sit a hds:Situation .
-          ?sit ${captivityDetailProp} ?CaptivityDetail .
-        }
+  ?vic a hds:Victim .
+  ?vic ${healthStatusProp} ?healthStatus .
+}
+
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${traumaProp} ?trauma .
+}
+
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${captivityDetailProp} ?CaptivityDetail .
+}
       }
       LIMIT 1
     `;
