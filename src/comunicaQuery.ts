@@ -23,6 +23,9 @@ export type RefugeeData = {
   village?: string;
   locationName?: string;
   captivityStatus?: string;
+  trauma?: string;
+  healthStatus?: string;
+  CaptivityDetail?: string
   gender?: string;
   helpReasons?: string;
   evidenceUrls?: string;
@@ -101,6 +104,12 @@ export async function queryRefugeeData(
     const genderProp = expandProperty("hds:gender", mapping);
     const helpReasonsProp = expandProperty("hds:helpReasons", mapping);
 
+    //************************************************************************* */
+    const traumaProp = expandProperty("hds:trauma", mapping);
+    const healthStatusProp = expandProperty("hds:healthStatus", mapping);
+    const captivityDetailProp = expandProperty("hds:CaptivityDetail", mapping);
+    //************************************************************************ */
+
     const locationBlock = filters.country
       ? `?loc ${countryProp} "${filters.country}" . BIND("${filters.country}" AS ?country)`
       : `OPTIONAL { ?loc ${countryProp} ?country . }`;
@@ -115,6 +124,7 @@ export async function queryRefugeeData(
                  ?accommodationNeeds ?age ?numberOfVictims ?recordDate
                  ?victimCategory ?state ?village ?locationName ?captivityStatus
                  ?gender ?helpReasons ?evidenceUrls
+                 ?trauma ?healthStatus ?CaptivityDetail
           WHERE {
 
         ${locationBlock}
@@ -171,6 +181,20 @@ export async function queryRefugeeData(
           ?sit a hds:Situation .
           ?sit ${captivityStatusProp} ?captivityStatus .
         }
+           OPTIONAL {
+  ?vic a hds:Victim .
+  ?vic ${healthStatusProp} ?healthStatus .
+}
+
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${traumaProp} ?trauma .
+}
+
+OPTIONAL {
+  ?sit a hds:Situation .
+  ?sit ${captivityDetailProp} ?CaptivityDetail .
+}
       }
       LIMIT 1
     `;
@@ -209,6 +233,15 @@ export async function queryRefugeeData(
             gender: binding.get("gender")?.value,
             helpReasons: binding.get("helpReasons")?.value,
             evidenceUrls: binding.get("evidenceUrls")?.value,
+
+            // ==========================================
+            // 🆕 NEW VARIABLES MAPPING START
+            // ==========================================
+            trauma: binding.get("trauma")?.value,
+            healthStatus: binding.get("healthStatus")?.value,
+            CaptivityDetail: binding.get("CaptivityDetail")?.value,
+            // ==========================================
+            // 🆕 NEW VARIABLES MAPPING END
           };
         },
       );
