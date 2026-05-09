@@ -172,6 +172,3 @@ As an NGO user, you can:
 - **Search / Analytics:** SPARQL queries run with Comunica in **comunicaQuery.ts** and customizable queries in **customComunicaQuery.ts**. Queries operate across remote Pod files (sources = HTTP URLs) with the same authenticated fetch.
 - **UI: App.tsx** is the main UI: bilingual (English / Tigrinya), form-driven data entry (victim, location, situation), file upload, NGO selection, access granting/revocation, basic charts (Chart.js) and lists of remote records for NGO role.
 - **Access Flow**: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (**public/refugeesGranted.ttl**).
-
-## Final Presentation
-Link to access slides of final presentation - [Link](https://docs.google.com/presentation/d/1QmYCiO__e2NlM8RE14cY8TLNW0KJvxN_/edit?usp=sharing&ouid=109819128229635806081&rtpof=true&sd=true)
