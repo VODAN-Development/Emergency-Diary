@@ -116,15 +116,15 @@ http://localhost:5173/
   - ### Login (if you already have an account):
     - Enter Email ID and password -> Click Login
     - Click Authorize
-  - ### Create a new account
+  - ### Create a new account:
     - Click Sign Up -> Enter your Email ID and password
     - Click Register
     - Under Pods section -> if already a Pod URL is configured -> Scroll down and click Continue Authentication -> Authorize
-        - ### if not:
-            - Click Create Pod -> then provide name -> choose: "Use WebID in the Pod and register it to your account" option
-            - Click Create Pod -> it shows your newly created Pod URL -> Click Back
-            - Scroll down and click Continue Authentication -> Authorize 
-Once logged in, the application establishes a secure session and gains permission to interact with your Solid Pod.
+  - ### If not:
+    - Click Create Pod -> then provide name -> choose: "Use WebID in the Pod and register it to your account" option
+    - Click Create Pod -> it shows your newly created Pod URL -> Click Back
+    - Scroll down and click Continue Authentication -> Authorize  
+     Once logged in, the application establishes a secure session and gains permission to interact with your Solid Pod.
 
 ## User Roles and Usage
 ### Refugee / Emergency Data Owner (My Secure Data Place)
@@ -171,4 +171,4 @@ As an NGO user, you can:
 - **Data I/O:** RDF serialization with rdflib and PUT/GET to Pod URLs via the authenticated fetch. CRUD implemented in solidDatanew.ts and access control via **accessControl.ts** (uses universalAccess.setAgentAccess / setPublicAccess).
 - **Search / Analytics:** SPARQL queries run with Comunica in **comunicaQuery.ts** and customizable queries in **customComunicaQuery.ts**. Queries operate across remote Pod files (sources = HTTP URLs) with the same authenticated fetch.
 - **UI: App.tsx** is the main UI: bilingual (English / Tigrinya), form-driven data entry (victim, location, situation), file upload, NGO selection, access granting/revocation, basic charts (Chart.js) and lists of remote records for NGO role.
-- **Access Flow**: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (**public/refugeesGranted.ttl**).
+- **Access Flow**: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (**public/refugeesGranted.ttl**).                                                                              
