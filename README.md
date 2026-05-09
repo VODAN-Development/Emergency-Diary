@@ -27,7 +27,7 @@ The application is currently hosted at https://emergency-diary.netlify.app
 
 ---
 
-## Prerequisites
+## 1. Prerequisites
 
 - **Solid Pod**: A personal online data store owned by the user
 - **WebID**: A decentralized identifier used for authentication and access control
@@ -36,7 +36,7 @@ The application is currently hosted at https://emergency-diary.netlify.app
 
 ---
 
-## Technology Stack
+## 2. Technology Stack
 
 ### Frontend
 - React
@@ -58,7 +58,7 @@ The application is currently hosted at https://emergency-diary.netlify.app
 
 ---
 
-## Architecture Overview
+## 3. Architecture Overview
 
 - The application runs entirely in the browser
 - There is **no backend server**
@@ -68,7 +68,7 @@ The application is currently hosted at https://emergency-diary.netlify.app
 ![System Architecture](images/diagram-export-12-22-2025-12_17_59-AM.png)
 ---
 
-## Requirements
+## 4. Requirements
 
 Before running the application, make sure you have:
 
@@ -82,22 +82,22 @@ You can create a Solid Pod using providers such as:
 
 ---
 
-## How to Set Up the Application Locally
+## 5. How to Set Up the Application Locally
 
-### 1. Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/VODAN-Development/2025_fieldlab3.git
 cd solid-emergency
 ```
 
-### 2. Install Dependencies
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Start the Development Server
+### Start the Development Server
 
 ```bash
 npm run dev
@@ -109,7 +109,7 @@ npm run dev
 http://localhost:5173/
 ```
 
-## Authentication and Login
+## 6. Authentication and Login
 - Open the application in your browser.
 - Click "My Secure Data Place" to login as refugee/emergency data owner or "Support Organisation" if you are an NGO
   ### Authenticate using Solid account:
@@ -126,7 +126,7 @@ http://localhost:5173/
     - Scroll down and click Continue Authentication -> Authorize  
      Once logged in, the application establishes a secure session and gains permission to interact with your Solid Pod.
 
-## User Roles and Usage
+## 7. User Roles and Usage
 ### Refugee / Emergency Data Owner (My Secure Data Place)
 As a refugee or emergency user, you can:
  - **Create an Emergency Record**
@@ -140,7 +140,7 @@ As a refugee or emergency user, you can:
     - Revoke access at any time
     - Access actions are logged privately in your Pod
 
-## NGO / Humanitarian Organisation (Support Organisation)
+## 8. NGO / Humanitarian Organisation (Support Organisation)
 As an NGO user, you can:
 - **Authenticate Using a WebID**
 - **Discover Shared Records**
@@ -151,7 +151,7 @@ As an NGO user, you can:
 - **Visualize Results**
     - View results in lists and basic charts
 
-## End-to-End Data Flow
+## 9. End-to-End Data Flow
 - A user logs in using their Solid WebID
 - Emergency data is entered through the UI
 - Data is transformed into RDF using a custom vocabulary
@@ -161,7 +161,7 @@ As an NGO user, you can:
 - NGOs query shared data across Pods using SPARQL
 - Results are displayed and analyzed without copying data centrally
 ---
-## Technical Summary
+## 10. Technical Summary
 - **Purpose**: Client-side React + TypeScript SPA for securely collecting, storing, sharing, and querying emergency/refugee incident data using Solid Pods and Linked Data.
 - **Stack**: React, Vite, TypeScript, rdflib, @inrupt/solid-client + solid-client-authn-browser, Comunica (@comunica/query-sparql), rdf-validate-shacl, Chart.js.
 - **Auth**: Solid OIDC via auth.ts (defaults to https://solidcommunity.net), session-bound solidFetch used for authenticated requests.
@@ -171,4 +171,4 @@ As an NGO user, you can:
 - **Data I/O:** RDF serialization with rdflib and PUT/GET to Pod URLs via the authenticated fetch. CRUD implemented in solidDatanew.ts and access control via **accessControl.ts** (uses universalAccess.setAgentAccess / setPublicAccess).
 - **Search / Analytics:** SPARQL queries run with Comunica in **comunicaQuery.ts** and customizable queries in **customComunicaQuery.ts**. Queries operate across remote Pod files (sources = HTTP URLs) with the same authenticated fetch.
 - **UI: App.tsx** is the main UI: bilingual (English / Tigrinya), form-driven data entry (victim, location, situation), file upload, NGO selection, access granting/revocation, basic charts (Chart.js) and lists of remote records for NGO role.
-- **Access Flow**: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (**public/refugeesGranted.ttl**).                                                                              
+- **Access Flow**: Refugee saves RDF to their Pod; they choose NGOs (WebIDs) to grant read access; access grants are enforced via Pod ACLs (Solid universalAccess) and logged (append to private/ngo-access-log.ttl). NGOs can discover granted refugees via an index file written in NGO Pods (**public/refugeesGranted.ttl**).
